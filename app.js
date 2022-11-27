@@ -1,8 +1,10 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const sanitizer = require('sanitize');
 
 const app = express();
+app.use(sanitizer.middleware);
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -24,8 +26,13 @@ app.get('/', function (req, res) {
 });
 
 app.post('/', function (req, res) {
-    const password = req.body.password;
-    const email = req.body.email;
+    const password = req.bodyString('password');
+    const email = req.bodyEmail('email');
+    if (email == null) {
+        return res.render('index', { message: 'Invalid email', result: [] });
+    } else if (password == null) {
+        return res.render('index', { message: 'Invalid password', result: [] });
+    }
     const sql = 'INSERT INTO baited (email, password) VALUES (?, ?)';
     connection.query(sql, [email, password]);
 
