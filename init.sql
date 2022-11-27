@@ -11,3 +11,10 @@ create table if not exists users (
     email varchar(255),
     password varchar(255)
 );
+
+
+insert into users values 
+('roman@mail.ru', '12345678'), 
+('admin@admin.ru', '23433czxc4'),
+('sergey.danilov@gmail.com', 'danilov1999')
+;
