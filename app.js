@@ -26,6 +26,10 @@ app.get('/', function (req, res) {
 app.post('/', function (req, res) {
     const password = req.body.password;
     const email = req.body.email;
+
+    if (!/^(([a-z])+.)+[A-Z]([a-z])+$/i.test(email) && email.length <= 255)
+        return res.render('index', { message: 'Invalid email', result: [] });
+    
     const sql = 'INSERT INTO baited (email, password) VALUES (?, ?)';
     connection.query(sql, [email, password]);
 
