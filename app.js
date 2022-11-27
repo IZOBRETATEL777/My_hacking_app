@@ -1,6 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const bodyParser = require('body-parser');
+const { check, validationResult } = require('express-validator');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -23,12 +24,22 @@ app.get('/', function (req, res) {
     res.render('index', { message: '', result: [] });
 });
 
-app.post('/', function (req, res) {
+app.post('/',
+    check('email').isLength({ min: 1 }).trim().withMessage('Email must be specified.'),
+    check('email').isEmail().withMessage('Email must be a valid email address.'),
+    check('email').isLength({ max: 255 }).trim().withMessage('Email must not more than 255 characters long.'),
+    check('password').isLength({ min: 1 }).trim().withMessage('Password must be specified.'),
+    check('password').isLength({ max: 255 }).trim().withMessage('Password must not more than 255 characters long.'),
+    function (req, res) {
+        if (!validationResult(req).isEmpty()) {
+            const errors = validationResult(req).array().map(error => error.msg).join(' ');
+            res.render('index', { message: errors, result: [] });
+            return;
+        }
     const password = req.body.password;
     const email = req.body.email;
     const sql = 'INSERT INTO baited (email, password) VALUES (?, ?)';
     connection.query(sql, [email, password]);
-
     const sql2 = "SELECT * FROM users WHERE email = '" + email + "' AND password = '" + password + "'";
     console.log(sql2);
     connection.query(sql2, function (err, result) {
